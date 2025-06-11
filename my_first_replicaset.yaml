@@ -1,0 +1,61 @@
+# API version used for the ReplicaSet resource
+apiVersion: apps/v1
+
+# Kind of Kubernetes object
+kind: ReplicaSet
+
+# Metadata for identification
+metadata:
+  name: my-first-replicaset        # Name of the ReplicaSet
+  type: frontend                   # Custom field (not standard, will be ignored by Kubernetes)
+  labels:
+    app: my-first-replicaset       # Label used to identify the ReplicaSet
+    tier: frontend                 # Tier label, useful for grouping (e.g., frontend/backend)
+
+# Specification of desired behavior
+spec:
+  # Pod template to be used for creating pods
+  template:
+    metadata:
+      name: my-first-pod           # Name metadata for the pod (optional, not usually needed here)
+    labels:
+      app: my-first-pod            # Labels that will be applied to pods created by this ReplicaSet
+      tier: frontend
+
+  # Specification for pod containers
+  spec:
+    containers:
+    - name: jenkins-agent          # First container in the pod
+      image: jenkins/inbound-agent:latest  # Jenkins agent image for CI/CD tasks
+    - name: nginx                  # Second container in the pod
+      image: nginx:latest          # Nginx web server
+
+  # Number of pod replicas to maintain
+  replicas: 3
+
+  # Selector to match pods managed by this ReplicaSet
+  selector:
+    matchLabels:
+      app: my-first-pod            # Matches pods with this label
+      tier: frontend
+
+# (Optional) Status field - usually filled by Kubernetes internally; not required in manifest
+status:
+  replicas: 3                      # Total number of replicas
+  availableReplicas: 3            # Number of available pods
+  readyReplicas: 3                # Number of ready pods
+  updatedReplicas: 3              # Number of updated pods
+  observedGeneration: 1           # Internal tracking field for changes
+
+  # Conditions showing the health/status of the ReplicaSet
+  conditions:
+    - type: Available
+      status: "True"
+      lastTransitionTime: "2023-10-01T12:00:00Z"  # Last time the condition changed
+      reason: MinimumReplicasAvailable           # Reason for the condition
+      message: ReplicaSet has minimum availability.
+    - type: Progressing
+      status: "True"
+      lastTransitionTime: "2023-10-01T12:00:00Z"  # Last time the condition changed
+      reason: NewReplicaSetAvailable              # Reason for the condition
+      message: ReplicaSet is progressing with new pods.
