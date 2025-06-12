@@ -1,0 +1,28 @@
+apiVersion: autoscaling/v2  # Using v2 API for advanced metrics support
+kind: HorizontalPodAutoscaler
+metadata:
+  name: <your-hpa-name>  # Name of the HPA resource
+  namespace: <your-namespace>  # Namespace where the target deployment exists
+spec:
+  # Reference to the deployment we want to autoscale
+  scaleTargetRef:
+    apiVersion: apps/v1  # API version of the target resource
+    kind: Deployment  # Type of resource to scale (can also be StatefulSet, etc.)
+    name: <your-deployment-name>  # Name of the deployment to scale
+  
+  # Minimum number of replicas (pods) to maintain
+  minReplicas: 5  # Will never scale below this number
+  
+  # Maximum number of replicas (pods) allowed
+  maxReplicas: 50  # Will never scale above this number
+  
+  # Metrics to use for scaling decisions
+  metrics:
+    - type: Resource  # Scaling based on resource metrics (CPU/Memory)
+      resource:
+        name: cpu  # We're using CPU metrics
+        target:
+          type: Utilization  # Scale based on utilization percentage
+          averageUtilization: 80  # Target average CPU utilization across all pods
+          # When average CPU usage across pods reaches 80%, scaling will occur
+          # The autoscaler will try to maintain this target value
